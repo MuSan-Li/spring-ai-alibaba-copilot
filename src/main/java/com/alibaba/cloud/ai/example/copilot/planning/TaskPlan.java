@@ -1,6 +1,7 @@
 package com.alibaba.cloud.ai.example.copilot.planning;
 
-
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 任务计划模型类
@@ -11,13 +12,13 @@ public class TaskPlan {
     private String taskId; // 任务ID
     private String title;
     private String description;
-    private TaskStep step;
+    private List<TaskStep> steps;
     private String planStatus; // 全局计划状态
     private String extraParams; // 上下文信息
-    private Boolean isCompleted; // 任务完成标识
 
 
     public TaskPlan() {
+        this.steps = new ArrayList<>();
     }
 
     /**
@@ -53,22 +54,39 @@ public class TaskPlan {
     }
 
     /**
-     * 获取任务步骤
-     * @return 任务步骤
+     * 获取任务步骤列表
+     * @return 任务步骤列表
      */
-    public TaskStep getStep() {
-        return step;
+    public List<TaskStep> getSteps() {
+        return steps;
     }
 
     /**
-     * 设置任务步骤
-     * @param step 任务步骤
+     * 设置任务步骤列表
+     * @param steps 任务步骤列表
      */
-    public void setStep(TaskStep step) {
-        this.step = step;
+    public void setSteps(List<TaskStep> steps) {
+        this.steps = steps;
     }
 
+    /**
+     * 添加单个任务步骤
+     * @param step 任务步骤
+     */
+    public void addStep(TaskStep step) {
+        if (this.steps == null) {
+            this.steps = new ArrayList<>();
+        }
+        this.steps.add(step);
+    }
 
+    /**
+     * 获取步骤数量
+     * @return 步骤数量
+     */
+    public int getStepCount() {
+        return steps != null ? steps.size() : 0;
+    }
 
     /**
      * 获取全局计划状态
@@ -116,21 +134,5 @@ public class TaskPlan {
      */
     public void setTaskId(String taskId) {
         this.taskId = taskId;
-    }
-
-    /**
-     * 获取任务完成标识
-     * @return 任务完成标识
-     */
-    public Boolean getIsCompleted() {
-        return isCompleted;
-    }
-
-    /**
-     * 设置任务完成标识
-     * @param isCompleted 任务完成标识
-     */
-    public void setIsCompleted(Boolean isCompleted) {
-        this.isCompleted = isCompleted;
     }
 }

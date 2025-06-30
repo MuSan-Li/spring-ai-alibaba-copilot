@@ -20,15 +20,16 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/task")
+@CrossOrigin(origins = "*")
 public class TaskController {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
-     @Autowired
-     private TaskCoordinator taskCoordinator;
+    @Autowired
+    private TaskCoordinator taskCoordinator;
 
-     @Autowired
-     private SseService sseService;
+    @Autowired
+    private SseService sseService;
 
 
     /**
@@ -55,8 +56,8 @@ public class TaskController {
             String userRequest = request.get("query");
             if (userRequest == null || userRequest.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error",
-                    "message", "请求内容不能为空"
+                        "status", "error",
+                        "message", "请求内容不能为空"
                 ));
             }
 
@@ -82,8 +83,8 @@ public class TaskController {
         } catch (Exception e) {
             logger.error("创建任务失败", e);
             return ResponseEntity.internalServerError().body(Map.of(
-                "status", "error",
-                "message", "创建任务失败: " + e.getMessage()
+                    "status", "error",
+                    "message", "创建任务失败: " + e.getMessage()
             ));
         }
     }
@@ -102,8 +103,8 @@ public class TaskController {
             // 如果任务不存在，返回错误信息
             if (taskPlan == null) {
                 return ResponseEntity.status(404).body(Map.of(
-                    "status", "error",
-                    "message", "任务不存在: " + taskId
+                        "status", "error",
+                        "message", "任务不存在: " + taskId
                 ));
             }
 
@@ -113,14 +114,16 @@ public class TaskController {
             response.put("status", taskPlan.getPlanStatus());
             response.put("title", taskPlan.getTitle());
             response.put("description", taskPlan.getDescription());
-            response.put("steps", taskPlan.getStep());
+            response.put("steps", taskPlan.getSteps());
+            response.put("stepCount", taskPlan.getStepCount());
+
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             logger.error("获取任务状态失败，任务ID: {}", taskId, e);
             return ResponseEntity.internalServerError().body(Map.of(
-                "status", "error",
-                "message", "获取任务状态失败: " + e.getMessage()
+                    "status", "error",
+                    "message", "获取任务状态失败: " + e.getMessage()
             ));
         }
     }
@@ -135,15 +138,15 @@ public class TaskController {
         try {
             // 暂时返回成功响应
             return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "任务已取消"
+                    "status", "success",
+                    "message", "任务已取消"
             ));
 
         } catch (Exception e) {
             logger.error("取消任务失败，任务ID: {}", taskId, e);
             return ResponseEntity.internalServerError().body(Map.of(
-                "status", "error",
-                "message", "取消任务失败: " + e.getMessage()
+                    "status", "error",
+                    "message", "取消任务失败: " + e.getMessage()
             ));
         }
     }
@@ -156,7 +159,7 @@ public class TaskController {
      */
     @GetMapping("/stream/{taskId}")
     public SseEmitter streamTaskUpdates(@PathVariable String taskId,
-                                       @RequestParam(defaultValue = "default") String clientId) {
+                                        @RequestParam(defaultValue = "default") String clientId) {
         logger.info("创建SSE连接，任务ID: {}, 客户端ID: {}", taskId, clientId);
 
         // 使用SseService创建连接
@@ -165,8 +168,8 @@ public class TaskController {
         // 发送初始连接确认消息
         try {
             emitter.send(SseEmitter.event()
-                .name("connected")
-                .data("{\"message\":\"SSE连接已建立\",\"taskId\":\"" + taskId + "\",\"timestamp\":" + System.currentTimeMillis() + "}"));
+                    .name("connected")
+                    .data("{\"message\":\"SSE连接已建立\",\"taskId\":\"" + taskId + "\",\"timestamp\":" + System.currentTimeMillis() + "}"));
         } catch (Exception e) {
             logger.error("发送SSE初始消息失败，任务ID: {}, 客户端ID: {}", taskId, clientId, e);
         }
@@ -182,13 +185,13 @@ public class TaskController {
      */
     @PostMapping("/next-step/{taskId}")
     public ResponseEntity<Map<String, Object>> triggerNextStep(@PathVariable String taskId,
-                                                              @RequestBody Map<String, String> request) {
+                                                               @RequestBody Map<String, String> request) {
         try {
             String stepResult = request.get("stepResult");
             if (stepResult == null) {
                 return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error",
-                    "message", "步骤结果不能为空"
+                        "status", "error",
+                        "message", "步骤结果不能为空"
                 ));
             }
 
@@ -201,8 +204,8 @@ public class TaskController {
         } catch (Exception e) {
             logger.error("触发下一步失败，任务ID: {}", taskId, e);
             return ResponseEntity.internalServerError().body(Map.of(
-                "status", "error",
-                "message", "触发下一步失败: " + e.getMessage()
+                    "status", "error",
+                    "message", "触发下一步失败: " + e.getMessage()
             ));
         }
     }
@@ -215,7 +218,7 @@ public class TaskController {
      */
     @PostMapping("/retry/{taskId}/{stepIndex}")
     public ResponseEntity<Map<String, Object>> retryFailedStep(@PathVariable String taskId,
-                                                              @PathVariable int stepIndex) {
+                                                               @PathVariable int stepIndex) {
         try {
             Map<String, Object> response = new HashMap<>();
             response.put("status", "success");
@@ -226,8 +229,8 @@ public class TaskController {
         } catch (Exception e) {
             logger.error("重试步骤失败，任务ID: {}, 步骤: {}", taskId, stepIndex, e);
             return ResponseEntity.internalServerError().body(Map.of(
-                "status", "error",
-                "message", "重试步骤失败: " + e.getMessage()
+                    "status", "error",
+                    "message", "重试步骤失败: " + e.getMessage()
             ));
         }
     }
@@ -249,8 +252,8 @@ public class TaskController {
         } catch (Exception e) {
             logger.error("获取活跃任务失败", e);
             return ResponseEntity.internalServerError().body(Map.of(
-                "status", "error",
-                "message", "获取活跃任务失败: " + e.getMessage()
+                    "status", "error",
+                    "message", "获取活跃任务失败: " + e.getMessage()
             ));
         }
     }

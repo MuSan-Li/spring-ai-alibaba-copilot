@@ -152,11 +152,11 @@ public class TemplateProjectController {
             response.put("templateName", "Spring AI + Vue3 Chat Template");
             response.put("templateDescription", "基础的AI聊天应用模板，包含Spring Boot后端和Vue3前端");
             response.put("features", List.of(
-                "Spring Boot 3.x + Spring AI",
-                "Vue3 + Ant Design Vue前端",
-                "SSE流式响应",
-                "基础聊天功能",
-                "现代化开发工具链"
+                    "Spring Boot 3.x + Spring AI",
+                    "Vue3 + Ant Design Vue前端",
+                    "SSE流式响应",
+                    "基础聊天功能",
+                    "现代化开发工具链"
             ));
             response.put("timestamp", System.currentTimeMillis());
 
